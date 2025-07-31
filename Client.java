@@ -4,6 +4,49 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class Client {
+	//dont forget to write error code to messages
+	// private static final HashMap<Integer, String> errorMessage;
+
+	private int sendMail(Email mail, ObjectInputStream in, ObjectOutputStream out) throws IOException, Exception{
+		Message req = null, res = null;
+		
+		//HELO/EHLO
+		req = new Message("HELO");
+		res = request(out, in, (Object)req);
+		handleResponse(res);
+
+		//MAIL FROM, RCPT TO, DATA
+		mail.send(); //to add timestamp and unique message id
+		res = request(out, in, (Object)mail);
+		handleResponse(res);
+		//BYE
+		req = new Message("BYE");
+		res = request(out, in, (Object)req);
+		handleResponse(res);
+
+		return 250;
+	}
+
+	private Message request(ObjectOutputStream out, ObjectInputStream  in,Object obj) throws IOException, Exception{
+		
+		if(obj instanceof Message){
+			out.writeObject((Message)obj);
+		}else if(obj instanceof Email){
+			out.writeObject((Email)obj);	
+		}
+		out.flush();
+		
+		//response Message object
+		return (Message)in.readObject();
+	}
+
+	private void handleResponse(Message res) throws Exception{
+		//map status code to message
+		if(!res.message.equalsIgnoreCase("250")){
+			throw new Exception(res.message);
+		}
+	}
+
 	public static void main(String[] args) {
 		Socket socket = null;
 		ObjectInputStream in = null;
@@ -21,21 +64,14 @@ public class Client {
 				String to = "xyz@gmail.com";
 				String subject = "test mail";
 				String body = "Hello! on the other side... This is a test email from the client";
-				Email email = new Email(from, to, subject, body);
-				
-				email.send();
-				out.writeObject(email);
-				out.flush();
+				Email mail = new Email(from, to, subject, body);
 
-				Response res = (Response)in.readObject();
-				if(res.message.equalsIgnoreCase("MAIL RECIEVED")){
-					System.out.println("Server: " + res.message);
+				Client client = new Client();
+				if(client.sendMail(mail, in, out) == 250){
 					break;
 				}
 			}
 		} catch(IOException e) {
-			e.printStackTrace();
-		} catch(ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch(Exception e){
 			e.printStackTrace();

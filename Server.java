@@ -6,7 +6,55 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
+	private void handleMail(ObjectInputStream in, ObjectOutputStream out) throws IOException, Exception{
+		Object recievedObject = null;
+		Message res = null;
+		
+		//HELO/EHLO
+		recievedObject = in.readObject();
+		if(recievedObject instanceof Message){
+			Message req = (Message) recievedObject;
+			if(!req.message.equalsIgnoreCase("HELO"))
+				throw new Error("HELO not intiated by client");
+			sendResponse(in, out, res, "250");
+		}else{
+			//send error codes instead client will handle
+			sendResponse(in, out, res, "HELO error");
+		}
+
+		//DATA
+		recievedObject = in.readObject();
+		if(recievedObject instanceof Email){
+			//have to save it
+			Email mail = (Email) recievedObject;
+			//verify email function - DNS records
+			System.out.println(mail);
+			sendResponse(in, out, res, "250");
+		}else{
+			//send error codes instead client will handle
+			sendResponse(in, out, res, "email not valid");
+		}
+
+		//BYE
+		recievedObject = in.readObject();
+		if(recievedObject instanceof Message){
+			Message req = (Message) recievedObject;
+			if(!req.message.equalsIgnoreCase("BYE"))
+				throw new Error("Bye not intiated by client");
+			sendResponse(in, out, res, "250");
+		}else{
+			//send error codes instead client will handle
+			sendResponse(in, out, res, "BYE error");
+		}
+	}
 	
+	private void sendResponse(ObjectInputStream in, ObjectOutputStream out, Message res, String message) throws IOException, Exception{
+		res = new Message(message);
+		out.writeObject(res);
+		out.flush();
+	}
+
+
 	public static void main(String args[]) {
 		Socket socket = null;
 		ObjectInputStream in = null;
@@ -25,14 +73,8 @@ public class Server {
 				in = new ObjectInputStream(socket.getInputStream());
 				try {
 					while(true) {
-						Email mail = (Email) in.readObject();
-						
-						Response res = new Response();
-						System.out.println(mail);
-						res.message = "mail Recieved";
-						
-						out.writeObject(res);
-						out.flush();	
+						Server server = new Server();
+						server.handleMail(in, out);
 					}
 				} catch(EOFException e){
 					System.out.println("client disconnected...");
