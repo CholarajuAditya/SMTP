@@ -1,3 +1,5 @@
+package com.bluhawk.smtp;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -6,7 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-	private void handleMail(ObjectInputStream in, ObjectOutputStream out) throws IOException, Exception{
+	private void SMTP(ObjectInputStream in, ObjectOutputStream out) throws IOException, Exception{
 		Object recievedObject = null;
 		Message res = null;
 		
@@ -18,11 +20,10 @@ public class Server {
 				throw new Error("HELO not intiated by client");
 			sendResponse(in, out, res, "250");
 		}else{
-			//send error codes instead client will handle
 			sendResponse(in, out, res, "HELO error");
 		}
 
-		//DATA
+		//MAIL FROM, RCPT TO, DATA
 		recievedObject = in.readObject();
 		if(recievedObject instanceof Email){
 			//have to save it
@@ -31,7 +32,6 @@ public class Server {
 			System.out.println(mail);
 			sendResponse(in, out, res, "250");
 		}else{
-			//send error codes instead client will handle
 			sendResponse(in, out, res, "email not valid");
 		}
 
@@ -43,7 +43,6 @@ public class Server {
 				throw new Error("Bye not intiated by client");
 			sendResponse(in, out, res, "250");
 		}else{
-			//send error codes instead client will handle
 			sendResponse(in, out, res, "BYE error");
 		}
 	}
@@ -54,6 +53,9 @@ public class Server {
 		out.flush();
 	}
 
+	private void verifyEmail(Email mail){
+		
+	}
 
 	public static void main(String args[]) {
 		Socket socket = null;
@@ -74,7 +76,7 @@ public class Server {
 				try {
 					while(true) {
 						Server server = new Server();
-						server.handleMail(in, out);
+						server.SMTP(in, out);
 					}
 				} catch(EOFException e){
 					System.out.println("client disconnected...");

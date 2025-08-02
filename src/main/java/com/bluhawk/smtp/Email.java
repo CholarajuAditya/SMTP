@@ -1,3 +1,5 @@
+package com.bluhawk.smtp;
+
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 

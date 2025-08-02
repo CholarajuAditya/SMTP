@@ -1,3 +1,4 @@
+package com.bluhawk.smtp;
 
 import java.io.Serializable;
 

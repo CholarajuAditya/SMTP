@@ -1,0 +1,23 @@
+[
+    {
+        "domain": "example.com",
+        "mx": "mail.example.com",
+        "a": "127.0.0.1",
+        "spf": "",
+        "dkim": ""
+    },
+    {
+        "domain": "gmail.com",
+        "mx": "mail.gmail.com",
+        "a": "127.0.0.1",
+        "spf": "",
+        "dkim": ""
+    },
+    {
+        "domain": "yahoo.com",
+        "mx": "mail.yahoo.com",
+        "a": "127.0.0.1",
+        "spf": "",
+        "dkim": ""
+    }
+]

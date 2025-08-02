@@ -1,0 +1,4 @@
+com\bluhawk\smtp\Server.class
+com\bluhawk\smtp\Client.class
+com\bluhawk\smtp\Email.class
+com\bluhawk\smtp\Message.class
