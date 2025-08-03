@@ -8,7 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-	private void SMTP(ObjectInputStream in, ObjectOutputStream out) throws IOException, Exception{
+	private void SMTP(ObjectInputStream in, ObjectOutputStream out, Socket socket) throws IOException, Exception{
 		Object recievedObject = null;
 		Message res = null;
 		
@@ -29,6 +29,7 @@ public class Server {
 			//have to save it
 			Email mail = (Email) recievedObject;
 			//verify email function - DNS records
+			verifyEmail(mail, socket);
 			System.out.println(mail);
 			sendResponse(in, out, res, "250");
 		}else{
@@ -53,8 +54,25 @@ public class Server {
 		out.flush();
 	}
 
-	private void verifyEmail(Email mail){
-		
+	private void verifyEmail(Email mail, Socket socket) throws Exception{
+		String senderDomain = mail.getFrom().split("@")[1];
+		DNSRecord record = DNSResolver.getRecord(senderDomain);
+
+		if(record == null){
+			throw new Exception("No DNS record found for domain: " + senderDomain + "\nQuarantining the mail");
+		}
+
+		//SPF
+		String clientIP = socket.getInetAddress().getHostAddress();
+		if(!record.spf.equalsIgnoreCase(clientIP)){
+			throw new Exception("SPF check failed, client: " + clientIP + " is not authorized to send mail");
+		}
+
+		//DKIM
+		Cryptography crypto = new Cryptography(Integer.parseInt(record.dkim));
+		if (!crypto.verifySignature(mail)) {
+			throw new Exception("DKIM check failed for domain: " + senderDomain);
+}
 	}
 
 	public static void main(String args[]) {
@@ -76,7 +94,7 @@ public class Server {
 				try {
 					while(true) {
 						Server server = new Server();
-						server.SMTP(in, out);
+						server.SMTP(in, out, socket);
 					}
 				} catch(EOFException e){
 					System.out.println("client disconnected...");

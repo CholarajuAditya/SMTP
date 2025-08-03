@@ -1,4 +1,7 @@
+com\bluhawk\smtp\DNSResolver.class
 com\bluhawk\smtp\Server.class
+com\bluhawk\smtp\DNSRecord.class
 com\bluhawk\smtp\Client.class
 com\bluhawk\smtp\Email.class
 com\bluhawk\smtp\Message.class
+com\bluhawk\smtp\Cryptography.class

@@ -3,21 +3,21 @@
         "domain": "example.com",
         "mx": "mail.example.com",
         "a": "127.0.0.1",
-        "spf": "",
-        "dkim": ""
+        "spf": "127.0.0.1",
+        "dkim": "7"
     },
     {
         "domain": "gmail.com",
         "mx": "mail.gmail.com",
         "a": "127.0.0.1",
-        "spf": "",
-        "dkim": ""
+        "spf": "127.0.0.1",
+        "dkim": "7"
     },
     {
         "domain": "yahoo.com",
         "mx": "mail.yahoo.com",
         "a": "127.0.0.1",
-        "spf": "",
-        "dkim": ""
+        "spf": "127.0.0.1",
+        "dkim": "7"
     }
 ]

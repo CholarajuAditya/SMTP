@@ -2,7 +2,6 @@ package com.bluhawk.smtp;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-
 public class Email implements Serializable {
 	private String from;
 	private String to;
@@ -10,6 +9,7 @@ public class Email implements Serializable {
 	private ZonedDateTime date;
 	private String messageId;
 	private String body;
+	private String signature;
 	
 	public Email(String from, String to, String subject, String body){
 		if(from == null || to == null || !from.contains("@") || !to.contains("@")) {
@@ -22,6 +22,7 @@ public class Email implements Serializable {
 		this.date = null; //date & timestamp will be set when the client sends it
 		this.body = body;
 		this.messageId = null;
+		this.signature = null;
 	}
 	
 	public void setFrom(String from){
@@ -64,9 +65,26 @@ public class Email implements Serializable {
 		return messageId;
 	}
 
-	public void send() {
+	public void send(int privateKey) {
 		messageId = "<" + System.currentTimeMillis() + "@" + from.split("@")[1] + ">" ;
 		this.date = ZonedDateTime.now();
+
+		//signing the email
+		String message = subject + body;
+        StringBuilder sb = new StringBuilder();
+        for (char ch : message.toCharArray()) {
+            if (Character.isLetter(ch)) {
+                char base = Character.isUpperCase(ch) ? 'A' : 'a';
+                sb.append((char)((ch - base + privateKey) % 26 + base));
+            } else {
+                sb.append(ch);
+            }
+        }
+        this.signature = sb.toString();
+	}
+
+	public String getSignature(){
+		return signature;
 	}
 
 	@Override

@@ -15,7 +15,8 @@ public class Client {
 		handleResponse(res);
 
 		//MAIL FROM, RCPT TO, DATA
-		mail.send(); //to add timestamp and unique message id
+		int privateKey = 7;
+		mail.send(privateKey); //to add timestamp and unique message id
 		res = request(out, in, (Object)mail);
 		handleResponse(res);
 		
@@ -61,13 +62,13 @@ public class Client {
 		
 			DNSRecord record = DNSResolver.getRecord(to.split("@")[1]); //gets the domain from the to email address
 			String ip = record.a; //gets the ip address of the domain server
+			
 			socket = new Socket(ip, 2525);
 			//out must be initialized before in - otherwise deadlock
 			out = new ObjectOutputStream(socket.getOutputStream());
 			out.flush();
 			in = new ObjectInputStream(socket.getInputStream());
 
-			// String ;
 			Client client = new Client();
 			if(client.sendMail(mail, in, out) == 250){
 				System.out.println("Email sent successfully!!");
